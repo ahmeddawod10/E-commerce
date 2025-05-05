@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace Ecommerce.Infrastructure.Identity
+namespace Ecommerce.Domain.Entities
 {
     public class ApplicationUser : IdentityUser
     {
-        // Add extra fields if needed
+        public string FullName { get; set; } = string.Empty;
     }
 }

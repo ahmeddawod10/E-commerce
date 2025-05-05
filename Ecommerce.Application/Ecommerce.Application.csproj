@@ -9,6 +9,10 @@
 
   <ItemGroup>
 	  <PackageReference Include="AutoMapper" />
+	  <PackageReference Include="Microsoft.AspNet.Identity.Owin" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+
   </ItemGroup>
 
   <ItemGroup>

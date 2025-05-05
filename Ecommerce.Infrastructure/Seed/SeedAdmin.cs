@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ecommerce.Infrastructure.Identity;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +16,7 @@ namespace Ecommerce.Infrastructure.Seed
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+            string adminName = "Ahmed Dawod";
             string adminEmail = "admin@shop.com";
             string adminPassword = "Admin@123";
 
@@ -25,6 +26,7 @@ namespace Ecommerce.Infrastructure.Seed
                 {
                     UserName = "admin",
                     Email = adminEmail,
+                    FullName= adminName,
                     EmailConfirmed = true
                 };
 

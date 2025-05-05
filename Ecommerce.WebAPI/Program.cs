@@ -1,10 +1,12 @@
-﻿using Ecommerce.Application.Mappings;
+﻿using Ecommerce.Application.Interfaces;
+using Ecommerce.Application.Mappings;
 using Ecommerce.Application.Services;
+using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Interfaces;
 using Ecommerce.Infrastructure.Data;
-using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Repositories;
 using Ecommerce.Infrastructure.Seed;
+using Ecommerce.Infrastructure.Services;
 using Ecommerce.WebAPI.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -54,8 +56,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
- 
+
 builder.Services.AddAutoMapper(typeof(ProductProfile));
 
  
