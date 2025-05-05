@@ -23,6 +23,14 @@ namespace Ecommerce.Infrastructure.Services
 
         public async Task<string> CreateTokenAsync(ApplicationUser user)
         {
+            var key = _config["JwtSettings:Key"];
+            var issuer = _config["JwtSettings:Issuer"];
+            var audience = _config["JwtSettings:Audience"];
+            var duration = _config["JwtSettings:DurationInMinutes"];
+
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+                throw new Exception("JWT settings are missing in configuration");
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
@@ -31,15 +39,15 @@ namespace Ecommerce.Infrastructure.Services
                 new Claim("fullName", user.FullName ?? "")
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _config["JwtSettings:Issuer"],
-                audience: _config["JwtSettings:Audience"],
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
-                expires: DateTime.Now.AddDays(7),
-                signingCredentials: creds
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(duration ?? "60")),
+                signingCredentials: credentials
             );
 
             return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));

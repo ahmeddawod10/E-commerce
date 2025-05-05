@@ -10,6 +10,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Domain.Entities;
+ 
+
 namespace Ecommerce.WebAPI.Controllers
 { 
 
@@ -19,34 +21,19 @@ namespace Ecommerce.WebAPI.Controllers
         [Route("api/[controller]")]
         public class AuthController : ControllerBase
         {
-            private readonly UserManager<ApplicationUser> _userManager;
-            private readonly SignInManager<ApplicationUser> _signInManager;
-            private readonly ITokenService _tokenService;
+            private readonly IAuthService _authService;
 
-            public AuthController(
-                UserManager<ApplicationUser> userManager,
-                SignInManager<ApplicationUser> signInManager,
-                ITokenService tokenService)
+            public AuthController(IAuthService authService)
             {
-                _userManager = userManager;
-                _signInManager = signInManager;
-                _tokenService = tokenService;
+                _authService = authService;
             }
 
             [HttpPost("register")]
             public async Task<IActionResult> Register([FromBody] RegisterDto model)
             {
-                var user = new ApplicationUser
-                {
-                    UserName = model.userName,
-                    Email = model.Email,
-                    FullName = model.fullName
-                };
-
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (!result.Succeeded)
-                    return BadRequest(result.Errors);
+                var result = await _authService.RegisterAsync(model);
+                if (!result)
+                    return BadRequest("Registration failed");
 
                 return Ok("Registered successfully.");
             }
@@ -54,14 +41,57 @@ namespace Ecommerce.WebAPI.Controllers
             [HttpPost("login")]
             public async Task<IActionResult> Login([FromBody] LoginDto model)
             {
-                var user = await _userManager.FindByNameAsync(model.Email);
+                var token = await _authService.LoginAsync(model);
 
-                if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+                if (token == null)
                     return Unauthorized("Invalid credentials");
 
-                var token = await _tokenService.CreateTokenAsync(user);
                 return Ok(new { token });
             }
+
+            [HttpPost("send-otp")]
+            public async Task<IActionResult> SendOtp([FromBody] string email)
+            {
+                var result = await _authService.SendOtpAsync(email);
+                if (!result)
+                    return BadRequest("Failed to send OTP.");
+                return Ok("OTP sent successfully.");
+            }
+
+            [HttpPost("verify-otp")]
+            public async Task<IActionResult> VerifyOtp([FromBody] ResetDtos.VerifyOtpDto dto)
+            {
+                var result = await _authService.VerifyOtpAsync(dto.Email, dto.OtpCode);
+                if (!result)
+                    return BadRequest("Invalid or expired OTP.");
+                return Ok("OTP verified.");
+            }
+
+            [HttpPost("reset-password")]
+            public async Task<IActionResult> ResetPassword([FromBody] ResetDtos.ResetPasswordDto dto)
+            {
+                var result = await _authService.ResetPasswordAsync(dto);
+                if (!result)
+                    return BadRequest("Password reset failed.");
+                return Ok("Password reset successful.");
+            }
+
+           
+
+            [HttpGet("send-test-email")]
+            public async Task<IActionResult> SendTestEmail([FromServices] IEmailService emailService)
+            {
+                try
+                {
+                    await emailService.SendEmailAsync("recipient-email@example.com", "Test Email", "This is a test.");
+                    return Ok("Email sent successfully.");
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"Failed to send email: {ex.Message}");
+                }
+            }
+
         }
 
 
