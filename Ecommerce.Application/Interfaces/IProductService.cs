@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ecommerce.Application.DTOs;
 
-namespace Ecommerce.Application.Services
+namespace Ecommerce.Application.Interfaces
 {
     public interface IProductService
     {

@@ -7,6 +7,7 @@ using Ecommerce.Domain.Interfaces;
 using Ecommerce.Application.DTOs;
 using Ecommerce.Domain.Entities;
 using AutoMapper;
+using Ecommerce.Application.Interfaces;
 
 namespace Ecommerce.Application.Services
 {

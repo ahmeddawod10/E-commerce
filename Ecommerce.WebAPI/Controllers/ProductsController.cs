@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Ecommerce.Application.DTOs;
-using Ecommerce.Application.Services;
+using Ecommerce.Application.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +18,7 @@ namespace Ecommerce.WebAPI.Controllers
         public ProductsController(IProductService productService) => _productService = productService;
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
             => Ok(await _productService.GetAllProductsAsync());
 
