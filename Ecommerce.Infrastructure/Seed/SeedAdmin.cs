@@ -19,6 +19,7 @@ namespace Ecommerce.Infrastructure.Seed
             string adminName = "Ahmed Dawod";
             string adminEmail = "admin@shop.com";
             string adminPassword = "Admin@123";
+            string role = "Admin";
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
@@ -27,7 +28,8 @@ namespace Ecommerce.Infrastructure.Seed
                     UserName = "admin",
                     Email = adminEmail,
                     FullName= adminName,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    Role= role
                 };
 
                 var result = await userManager.CreateAsync(user, adminPassword);
@@ -37,6 +39,17 @@ namespace Ecommerce.Infrastructure.Seed
                     await userManager.AddToRoleAsync(user, "Admin");
                 }
             }
+        }
+        public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        {
+            if (!await roleManager.RoleExistsAsync("Customer"))
+                await roleManager.CreateAsync(new IdentityRole("Customer"));
+
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+
+            if (!await roleManager.RoleExistsAsync("Merchant"))
+                await roleManager.CreateAsync(new IdentityRole("Merchant"));
         }
 
     }

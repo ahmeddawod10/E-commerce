@@ -61,6 +61,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 
+
 builder.Services.AddMemoryCache();
 
 
@@ -103,7 +104,15 @@ using (var scope = app.Services.CreateScope())
     await SeedAdmin.SeedAdminAsync(scope.ServiceProvider);
 }
 
- 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // استدعاء SeedRolesAsync لتوليد الأدوار
+    await SeedAdmin.SeedRolesAsync(roleManager);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

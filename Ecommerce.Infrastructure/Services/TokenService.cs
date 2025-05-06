@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,10 +16,13 @@ namespace Ecommerce.Infrastructure.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TokenService(IConfiguration config)
+
+        public TokenService(IConfiguration config, UserManager<ApplicationUser> userManager)
         {
             _config = config;
+            _userManager = userManager;
         }
 
         public async Task<string> CreateTokenAsync(ApplicationUser user)
@@ -31,13 +35,19 @@ namespace Ecommerce.Infrastructure.Services
             if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
                 throw new Exception("JWT settings are missing in configuration");
 
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? ""),
                 new Claim("email", user.Email ?? ""),
                 new Claim("fullName", user.FullName ?? "")
             };
+
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role));
+
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

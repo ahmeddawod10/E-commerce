@@ -10,7 +10,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Domain.Entities;
- 
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Ecommerce.WebAPI.Controllers
 { 
@@ -68,6 +69,7 @@ namespace Ecommerce.WebAPI.Controllers
             }
 
             [HttpPost("reset-password")]
+            [Authorize(Roles = "Customer")]
             public async Task<IActionResult> ResetPassword([FromBody] ResetDtos.ResetPasswordDto dto)
             {
                 var result = await _authService.ResetPasswordAsync(dto);

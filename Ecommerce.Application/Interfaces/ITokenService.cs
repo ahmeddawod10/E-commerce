@@ -11,5 +11,6 @@ namespace Ecommerce.Application.Interfaces
     public interface ITokenService
     {
         Task<string> CreateTokenAsync(ApplicationUser user);
+        
     }
 }

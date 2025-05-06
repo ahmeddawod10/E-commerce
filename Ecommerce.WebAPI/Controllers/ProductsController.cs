@@ -18,7 +18,7 @@ namespace Ecommerce.WebAPI.Controllers
         public ProductsController(IProductService productService) => _productService = productService;
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetAll()
             => Ok(await _productService.GetAllProductsAsync());
 
