@@ -13,17 +13,20 @@ namespace Ecommerce.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
+        private readonly RoleManager<IdentityRole> _roleManger;
         private readonly IMemoryCache _cache;
 
         public AuthService(
             UserManager<ApplicationUser> userManager,
             ITokenService tokenService,
             IEmailService emailService,
+            RoleManager<IdentityRole> roleManger,
             IMemoryCache cache)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _emailService = emailService;
+            _roleManger = roleManger;
             _cache = cache;
         }
 
@@ -37,7 +40,33 @@ namespace Ecommerce.Application.Services
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
+
+            var UserRole = await _userManager.AddToRoleAsync(user, "Customer");
+            
             return result.Succeeded;
+        
+        
+        
+        }
+
+
+        public async Task<bool> RegisterMerchantAsync(RegisterDto model)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = model.userName,
+                Email = model.Email,
+                FullName = model.fullName
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            var UserRole = await _userManager.AddToRoleAsync(user, "Merchant");
+
+            return result.Succeeded;
+
+
+
         }
 
         public async Task<string?> LoginAsync(LoginDto model)
