@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Ecommerce.Application.DTOs;
 using Ecommerce.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Ecommerce.Application.Mappings
 {
@@ -17,4 +18,11 @@ namespace Ecommerce.Application.Mappings
         }
     }
 
+    public class RoleProfile : Profile
+    {
+        public RoleProfile()
+        {
+            CreateMap<IdentityRole, RoleDto>().ReverseMap();
+        }
+    }
 }

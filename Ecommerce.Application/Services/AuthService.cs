@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Ecommerce.Application.DTOs;
 using Ecommerce.Application.Interfaces;
+using Ecommerce.Application.Models;
 using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -69,13 +70,23 @@ namespace Ecommerce.Application.Services
 
         }
 
-        public async Task<string?> LoginAsync(LoginDto model)
+        public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return null;
+                return Result<LoginResponseDto>.Unauthorized("invalid credentials");
 
-            return await _tokenService.CreateTokenAsync(user);
+            var token = await _tokenService.CreateTokenAsync(user);
+            var userDto = new LoginResponseDto
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = token
+            };
+            return Result<LoginResponseDto>.Ok(userDto, "login successfully");
+
+            
         }
 
         public async Task<bool> SendOtpAsync(string email)

@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ecommerce.Application.DTOs;
+using Ecommerce.Application.Models;
+
 
 namespace Ecommerce.Application.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<ProductDto?> GetProductByIdAsync(int id);
-        Task AddProductAsync(ProductDto product);
-        Task UpdateProductAsync(ProductDto product);
-        Task DeleteProductAsync(int id);
+        Task<Result<IEnumerable<ProductDto>>> GetAllProductsAsync();    
+        Task<Result<ProductDto>> GetProductByIdAsync(int id);
+        Task<Result<ProductDto>>AddProductAsync(ProductDto product);
+        Task<Result<ProductDto>>UpdateProductAsync(ProductDto product);
+        Task<Result<bool>> DeleteProductAsync(int id);
     }
 }

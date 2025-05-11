@@ -8,6 +8,7 @@ using Ecommerce.Application.DTOs;
 using Ecommerce.Domain.Entities;
 using AutoMapper;
 using Ecommerce.Application.Interfaces;
+using Ecommerce.Application.Models;
 
 namespace Ecommerce.Application.Services
 {
@@ -22,42 +23,55 @@ namespace Ecommerce.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        public async Task<Result<IEnumerable<ProductDto>>> GetAllProductsAsync()
         {
             var products = await _unitOfWork.Products.GetAllAsync();
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            var mapped = _mapper.Map<IEnumerable<ProductDto>>(products);
+            return Result<IEnumerable<ProductDto>>.Ok(mapped,"Products fetched successfully.");  
         }
 
-        public async Task<ProductDto?> GetProductByIdAsync(int id)
+        public async Task<Result<ProductDto>> GetProductByIdAsync(int id)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);
-            return product == null ? null : _mapper.Map<ProductDto>(product);
+            var mapped = _mapper.Map<ProductDto>(product);
+            return Result<ProductDto>.Ok(mapped, "Product fetshed successfuly.");
         }
 
-        public async Task AddProductAsync(ProductDto productDto)
+        public async Task<Result<ProductDto>> AddProductAsync(ProductDto productDto)
         {
             var product = _mapper.Map<Product>(productDto);
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.CompleteAsync();
+            var mapped = _mapper.Map<ProductDto>(product);
+
+            return Result<ProductDto>.Ok(mapped, "Product added successfully.");
         }
 
-        public async Task UpdateProductAsync(ProductDto productDto)
+
+        public async Task<Result<ProductDto>> UpdateProductAsync(ProductDto productDto)
         {
             var existingProduct = await _unitOfWork.Products.GetByIdAsync(productDto.Id);
-            if (existingProduct == null) return;
+            if (existingProduct == null) Result< ProductDto >.NotFound("Product not found"); ;
 
-            _mapper.Map(productDto, existingProduct);
-            _unitOfWork.Products.Update(existingProduct);
+            var product = _mapper.Map<Product>(productDto);
+            var mapped = _mapper.Map<ProductDto>(product);
+            _unitOfWork.Products.Update(product);
             await _unitOfWork.CompleteAsync();
+
+            return Result<ProductDto>.Ok(mapped,"Product updated successfully.");
+
         }
 
-        public async Task DeleteProductAsync(int id)
+        public async Task<Result<bool>> DeleteProductAsync(int id)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);
-            if (product == null) return;
-
+            if (product == null)
+            {
+             return   Result<bool>.NotFound("Product not found");
+            }
             _unitOfWork.Products.Delete(product);
             await _unitOfWork.CompleteAsync();
+            return Result<bool>.Ok(true,"Deleted Successfully");
         }
     }
 
