@@ -49,7 +49,6 @@ namespace Ecommerce.Application.Services
             }
             catch (SmtpException ex)
             {
-                // سجل الخطأ للمراجعة
                 throw new InvalidOperationException("SMTP send failed", ex);
             }
 

@@ -51,7 +51,8 @@ namespace Ecommerce.Application.Services
         public async Task<Result<ProductDto>> UpdateProductAsync(ProductDto productDto)
         {
             var existingProduct = await _unitOfWork.Products.GetByIdAsync(productDto.Id);
-            if (existingProduct == null) Result< ProductDto >.NotFound("Product not found"); ;
+            if (existingProduct == null)
+                return Result< ProductDto >.NotFound("Product not found"); ;
 
             var product = _mapper.Map<Product>(productDto);
             var mapped = _mapper.Map<ProductDto>(product);
@@ -67,7 +68,8 @@ namespace Ecommerce.Application.Services
             var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product == null)
             {
-             return   Result<bool>.NotFound("Product not found");
+             return 
+                    Result<bool>.NotFound("Product not found");
             }
             _unitOfWork.Products.Delete(product);
             await _unitOfWork.CompleteAsync();

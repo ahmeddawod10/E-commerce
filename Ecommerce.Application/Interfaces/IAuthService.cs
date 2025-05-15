@@ -16,6 +16,8 @@ namespace Ecommerce.Application.Interfaces
         Task<bool> SendOtpAsync(string email);
         Task<bool> VerifyOtpAsync(string email, string OtpCode);
         Task<bool> ResetPasswordAsync(ResetPasswordDto dto);
+        Task<Result<TokenDto>> GenerateRefreshToken(string refreshToken);
+        Task<Result<string>> Revoke();
 
     }
 

@@ -2,6 +2,7 @@
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Models;
 using Ecommerce.WebAPI.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace Ecommerce.API.Controllers
             _roleService = roleService;
         }
 
+        [Authorize(Roles ="Admin,Customer")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

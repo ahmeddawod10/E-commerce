@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNet.Identity;
 
 
 namespace Ecommerce.WebAPI.Controllers
@@ -20,10 +22,10 @@ namespace Ecommerce.WebAPI.Controllers
     {
         [ApiController]
         [Route("api/[controller]")]
-        public class AuthController : ControllerBase
+        public class AuthController : BaseApiController
         {
             private readonly IAuthService _authService;
-
+ 
             public AuthController(IAuthService authService)
             {
                 _authService = authService;
@@ -44,10 +46,7 @@ namespace Ecommerce.WebAPI.Controllers
             {
                 var token = await _authService.LoginAsync(model);
 
-                if (token == null)
-                    return Unauthorized("Invalid credentials");
-
-                return Ok(new { token });
+                return CreatedResponse(token);
             }
 
             [HttpPost("send-otp")]
@@ -78,7 +77,7 @@ namespace Ecommerce.WebAPI.Controllers
                 return Ok("Password reset successful.");
             }
 
-           
+
 
             [HttpGet("send-test-email")]
             public async Task<IActionResult> SendTestEmail([FromServices] IEmailService emailService)
@@ -94,9 +93,31 @@ namespace Ecommerce.WebAPI.Controllers
                 }
             }
 
+
+            [HttpPost("refresh-token")]
+            [AllowAnonymous]
+            public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+            {
+                var result = await _authService.GenerateRefreshToken(refreshToken);
+                if (!result.Success)
+                    return Unauthorized(result.Message);
+
+                return Ok(result.Data);  
+            }
+
+            [HttpPost("revoke-token")]
+            [Authorize(Roles = "Customer")]
+            public async Task<IActionResult> RevokeToken()
+            {
+                var result = await _authService.Revoke();
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);  
+            }
+
+
         }
-
-
     }
 
 

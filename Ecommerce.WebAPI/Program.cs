@@ -46,7 +46,8 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.Audience,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -101,19 +102,19 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
  
-using (var scope = app.Services.CreateScope())
-{
-    await SeedAdmin.SeedAdminAsync(scope.ServiceProvider);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    await SeedAdmin.SeedAdminAsync(scope.ServiceProvider);
+//}
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // استدعاء SeedRolesAsync لتوليد الأدوار
-    await SeedAdmin.SeedRolesAsync(roleManager);
-}
+//    // استدعاء SeedRolesAsync لتوليد الأدوار
+//    await SeedAdmin.SeedRolesAsync(roleManager);
+//}
 
 if (app.Environment.IsDevelopment())
 {

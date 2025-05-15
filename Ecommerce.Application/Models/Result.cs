@@ -9,8 +9,6 @@ namespace Ecommerce.Application.Models
     public class Result<T>
     {
         public bool Success { get; set; }
-        public bool IsSuccess => StatusCode >= 200 && StatusCode < 300;
-
         public string Message { get; set; } = string.Empty;
         public T? Data { get; set; }
         public int StatusCode { get; set; }
@@ -18,8 +16,14 @@ namespace Ecommerce.Application.Models
         public static Result<T> Ok(T data, string message = "Success") =>
             new() { Success = true, Data = data, Message = message, StatusCode = 200 };
 
+          public static Result<T> Created(T data, string message = "Success") =>
+           new() { Success = true, Data = data, Message = message, StatusCode = 201 };
+
         public static Result<T> BadRequest(string message = "Bad Request") =>
             new() { Success = false, Message = message, StatusCode = 400 };
+
+        public static Result<T> Unprocessable(string message = "Unprocessable ") =>
+            new() { Success = false, Message = message, StatusCode = 422 };
 
         public static Result<T> Unauthorized(string message = "Unauthorized") =>
             new() { Success = false, Message = message, StatusCode = 401 };

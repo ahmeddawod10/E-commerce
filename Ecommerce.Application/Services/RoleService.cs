@@ -39,6 +39,11 @@ namespace Ecommerce.Application.Services
 
         public async Task<Result<RoleDto>> AddRoleAsync(RoleDto roleDto)
         {
+            if(roleDto.Name ==null)
+            {
+                return Result<RoleDto>.Unprocessable("missing role name");
+
+            }
             var role = new IdentityRole { Name = roleDto.Name };
             var result = await _roleManager.CreateAsync(role);
 
