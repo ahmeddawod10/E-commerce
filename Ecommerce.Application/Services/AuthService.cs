@@ -75,13 +75,24 @@ namespace Ecommerce.Application.Services
             var UserRole = await _userManager.AddToRoleAsync(user, "Merchant");
 
             return result.Succeeded;
-
-
-
         }
 
 
+        public async Task<bool> RegisterAdminAsync(RegisterDto model)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = model.userName,
+                Email = model.Email,
+                FullName = model.fullName
+            };
 
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            var UserRole = await _userManager.AddToRoleAsync(user, "Admin");
+
+            return result.Succeeded;
+        }
 
         public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto model)
         {

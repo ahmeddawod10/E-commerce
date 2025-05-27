@@ -10,10 +10,15 @@ using Ecommerce.Infrastructure.Services;
 using Ecommerce.WebAPI.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
+using Ecommerce.Application.DTOs;
+using Microsoft.Extensions.Caching;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +66,46 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IValidator<ProductDto>, ProductDtoValidator>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IOrderRepository,OrderRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<CartService>();
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis"); // Or your Redis config
+    options.InstanceName = "MyApp:";
+});
+  
+
+
+//Configure Custom Validation Response 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(e => e.Value.Errors.Count > 0)
+            .SelectMany(x => x.Value.Errors)
+            .Select(x => x.ErrorMessage)
+            .ToList();
+
+        var responseObj = new
+        {
+            StatusCode = 400,
+            Message = "Validation Failed",
+            Errors = errors
+        };
+
+        return new BadRequestObjectResult(responseObj);
+    };
+});
 
 
 
@@ -99,9 +143,10 @@ builder.Services.AddSwaggerGen(options =>
             });
 });
 
+
 var app = builder.Build();
 
- 
+
 //using (var scope = app.Services.CreateScope())
 //{
 //    await SeedAdmin.SeedAdminAsync(scope.ServiceProvider);
@@ -112,8 +157,7 @@ var app = builder.Build();
 //    var services = scope.ServiceProvider;
 //    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-//    // استدعاء SeedRolesAsync لتوليد الأدوار
-//    await SeedAdmin.SeedRolesAsync(roleManager);
+//     await SeedAdmin.SeedRolesAsync(roleManager);
 //}
 
 if (app.Environment.IsDevelopment())

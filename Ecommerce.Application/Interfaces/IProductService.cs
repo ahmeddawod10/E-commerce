@@ -16,5 +16,6 @@ namespace Ecommerce.Application.Interfaces
         Task<Result<ProductDto>>AddProductAsync(ProductDto product);
         Task<Result<ProductDto>>UpdateProductAsync(ProductDto product);
         Task<Result<bool>> DeleteProductAsync(int id);
+        Task<Result<List<ProductDto>>> GetPaginatedProductsAsync(Pagination pagination);
     }
 }

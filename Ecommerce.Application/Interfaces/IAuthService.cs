@@ -12,6 +12,8 @@ namespace Ecommerce.Application.Interfaces
     public interface IAuthService
     {
         Task<bool> RegisterAsync(RegisterDto dto);
+        Task<bool> RegisterMerchantAsync(RegisterDto model);
+        Task<bool> RegisterAdminAsync(RegisterDto model);
         Task<Result<LoginResponseDto>> LoginAsync(LoginDto model);
         Task<bool> SendOtpAsync(string email);
         Task<bool> VerifyOtpAsync(string email, string OtpCode);

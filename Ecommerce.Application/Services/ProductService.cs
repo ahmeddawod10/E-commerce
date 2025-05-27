@@ -9,6 +9,9 @@ using Ecommerce.Domain.Entities;
 using AutoMapper;
 using Ecommerce.Application.Interfaces;
 using Ecommerce.Application.Models;
+using Microsoft.EntityFrameworkCore;
+using FluentValidation;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Ecommerce.Application.Services
 {
@@ -16,16 +19,25 @@ namespace Ecommerce.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IValidator<ProductDto> _validator;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IValidator<ProductDto> validator)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _validator = validator;
         }
 
-        public async Task<Result<IEnumerable<ProductDto>>> GetAllProductsAsync()
+        public async Task<Result<IEnumerable<ProductDto>>> GetAllProductsAsync()// search and filter ,string ? searchByName ,int ?categoryId 
         {
-            var products = await _unitOfWork.Products.GetAllAsync();
+            //return as IQuerable
+            //pagintion (cursor pagination vs offlimit)
+            // search and filter
+            // redis cache for cach products
+            
+
+            var products = await _unitOfWork.Products.GetAllWithCategoryAsync();
             var mapped = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Result<IEnumerable<ProductDto>>.Ok(mapped,"Products fetched successfully.");  
         }
@@ -33,12 +45,21 @@ namespace Ecommerce.Application.Services
         public async Task<Result<ProductDto>> GetProductByIdAsync(int id)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);
-            var mapped = _mapper.Map<ProductDto>(product);
-            return Result<ProductDto>.Ok(mapped, "Product fetshed successfuly.");
+            if (product == null)
+                return Result<ProductDto>.NotFound("Product not found.");
+
+            var dto = _mapper.Map<ProductDto>(product);
+            return Result<ProductDto>.Ok(dto, "Product retrieved successfully.");
         }
 
         public async Task<Result<ProductDto>> AddProductAsync(ProductDto productDto)
         {
+            var validationResult = await _validator.ValidateAsync(productDto);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage);
+                return Result<ProductDto>.BadRequest("Not valid");
+            }
             var product = _mapper.Map<Product>(productDto);
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.CompleteAsync();
@@ -53,13 +74,13 @@ namespace Ecommerce.Application.Services
             var existingProduct = await _unitOfWork.Products.GetByIdAsync(productDto.Id);
             if (existingProduct == null)
                 return Result< ProductDto >.NotFound("Product not found"); ;
-
-            var product = _mapper.Map<Product>(productDto);
-            var mapped = _mapper.Map<ProductDto>(product);
-            _unitOfWork.Products.Update(product);
+            _mapper.Map(productDto,existingProduct);
+            //var product = _mapper.Map<Product>(productDto);
+            //var mapped = _mapper.Map<ProductDto>(product);
+            _unitOfWork.Products.Update(existingProduct);
             await _unitOfWork.CompleteAsync();
 
-            return Result<ProductDto>.Ok(mapped,"Product updated successfully.");
+            return Result<ProductDto>.Ok(productDto,"Product updated successfully.");
 
         }
 
@@ -75,6 +96,32 @@ namespace Ecommerce.Application.Services
             await _unitOfWork.CompleteAsync();
             return Result<bool>.Ok(true,"Deleted Successfully");
         }
+
+
+
+        public async Task<Result<List<ProductDto>>> GetPaginatedProductsAsync(Pagination pagination)
+        {
+            var productsQuery = _unitOfWork.Products.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(pagination.SearchQuery))
+            {
+                var search = pagination.SearchQuery.Trim().ToLower();
+                productsQuery = productsQuery.Where(p =>
+                    p.Name.ToLower().Contains(search) ||
+                    p.Description.ToLower().Contains(search));
+            }
+
+            var pagedProducts = await productsQuery
+                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var productDtos = _mapper.Map<List<ProductDto>>(pagedProducts);
+
+            return Result<List<ProductDto>>.Ok(productDtos, "Products retrieved successfully");
+        }
+
+
     }
 
 

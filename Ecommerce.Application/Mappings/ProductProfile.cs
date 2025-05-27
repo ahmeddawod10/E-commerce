@@ -25,4 +25,24 @@ namespace Ecommerce.Application.Mappings
             CreateMap<IdentityRole, RoleDto>().ReverseMap();
         }
     }
+
+    public class CategoryProfile : Profile
+    {
+        public CategoryProfile()
+        {
+            CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<Category,UpdateCategoryDto>().ReverseMap();
+        }
+    }
+
+    public class OrderProfile : Profile
+    {
+        public OrderProfile()
+        {
+            CreateMap<Order, OrderDto>().ReverseMap();
+            CreateMap<Order, UpdateOrderDto>().ReverseMap();
+            CreateMap<Order,CreateOrderDto>().ReverseMap();
+        }
+    }
+
 }

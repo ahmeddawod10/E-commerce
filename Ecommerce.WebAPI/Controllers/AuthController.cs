@@ -41,6 +41,27 @@ namespace Ecommerce.WebAPI.Controllers
                 return Ok("Registered successfully.");
             }
 
+            [HttpPost("register_Admin")]
+            public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDto model)
+            {
+                var result = await _authService.RegisterAdminAsync(model);
+                if (!result)
+                    return BadRequest("Registration failed");
+
+                return Ok("Registered successfully.");
+            }
+
+
+            [HttpPost("register_Merchant")]
+            public async Task<IActionResult> RegisterMerchant([FromBody] RegisterDto model)
+            {
+                var result = await _authService.RegisterMerchantAsync(model);
+                if (!result)
+                    return BadRequest("Registration failed");
+
+                return Ok("Registered successfully.");
+            }
+
             [HttpPost("login")]
             public async Task<IActionResult> Login([FromBody] LoginDto model)
             {
