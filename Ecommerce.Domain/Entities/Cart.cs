@@ -24,8 +24,8 @@ namespace Ecommerce.Domain.Entities
         //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         //public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public decimal TotalAmount => Items.Sum(item => item.TotalPrice);
-        public int TotalItems => Items.Sum(item => item.Quantity);
+        public decimal? TotalAmount => Items.Sum(item => item.TotalPrice);
+        public int? TotalItems => Items.Sum(item => item.Quantity);
 
 
 
@@ -33,7 +33,7 @@ namespace Ecommerce.Domain.Entities
         public class AddToCartRequest
         {
             [Required]
-            public string ProductId { get; set; } = string.Empty;
+            public int ProductId { get; set; }  
 
             [Required]
             public string ProductName { get; set; } = string.Empty;

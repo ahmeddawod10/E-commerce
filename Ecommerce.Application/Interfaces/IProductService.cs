@@ -13,8 +13,10 @@ namespace Ecommerce.Application.Interfaces
     {
         Task<Result<IEnumerable<ProductDto>>> GetAllProductsAsync();    
         Task<Result<ProductDto>> GetProductByIdAsync(int id);
-        Task<Result<ProductDto>>AddProductAsync(ProductDto product);
-        Task<Result<ProductDto>>UpdateProductAsync(ProductDto product);
+        //Task<Result<ProductDto>>AddProductAsync(ProductDto product);
+        //Task<Result<ProductDto>>UpdateProductAsync(ProductDto product);
+        public Task<Result<ProductDto>> AddProductAsync(CreateProductRequest request);
+        public Task<Result<ProductDto>> UpdateProductAsync(UpdateProductRequest request);
         Task<Result<bool>> DeleteProductAsync(int id);
         Task<Result<List<ProductDto>>> GetPaginatedProductsAsync(Pagination pagination);
     }

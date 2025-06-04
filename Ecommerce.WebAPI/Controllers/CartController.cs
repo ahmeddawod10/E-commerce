@@ -31,8 +31,8 @@ namespace Ecommerce.WebAPI.Controllers
             {
                 UserId = cart.UserId,
                 Items = cart.Items,
-                TotalAmount = cart.TotalAmount,
-                TotalItems = cart.TotalItems,
+                TotalAmount = (decimal)cart.TotalAmount,
+                TotalItems = (int)cart.TotalItems,
                 CreatedAt = cart.LastModified
             };
         }
@@ -57,7 +57,7 @@ namespace Ecommerce.WebAPI.Controllers
             }
         }
 
-        [HttpPost("items")]
+        [HttpPost()]
         public async Task<ActionResult<CartResponse>> AddToCart([FromBody] AddToCartRequest request)
         {
             try
@@ -84,8 +84,8 @@ namespace Ecommerce.WebAPI.Controllers
             }
         }
 
-        [HttpPut("items/{productId}")]
-        public async Task<ActionResult<CartResponse>> UpdateCartItem(string productId, [FromBody] UpdateCartItemRequest request)
+        [HttpPut("{productId}")]
+        public async Task<ActionResult<CartResponse>> UpdateCartItem(int productId, [FromBody] UpdateCartItemRequest request)
         {
             try
             {
@@ -115,8 +115,8 @@ namespace Ecommerce.WebAPI.Controllers
             }
         }
 
-        [HttpDelete("items/{productId}")]
-        public async Task<ActionResult<CartResponse>> RemoveFromCart(string productId)
+        [HttpDelete("{productId}")]
+        public async Task<ActionResult<CartResponse>> RemoveFromCart(int productId)
         {
             try
             {
@@ -190,8 +190,8 @@ namespace Ecommerce.WebAPI.Controllers
             }
         }
 
-        [HttpPost("merge")]
-        public async Task<ActionResult<CartResponse>> MergeCart([FromBody] MergeCartRequest request)
+        //[HttpPost("merge")]
+       /* public async Task<ActionResult<CartResponse>> MergeCart([FromBody] MergeCartRequest request)
         {
             try
             {
@@ -216,7 +216,7 @@ namespace Ecommerce.WebAPI.Controllers
                 _logger.LogError(ex, "Error merging carts");
                 return StatusCode(500, new { message = "An error occurred while merging carts" });
             }
-        }
+        }*/
 
         public class MergeCartRequest
         {

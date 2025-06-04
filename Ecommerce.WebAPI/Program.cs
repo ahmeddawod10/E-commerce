@@ -76,6 +76,8 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IOrderRepository,OrderRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddTransient<IFileService, FileService>();
+
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -165,7 +167,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 

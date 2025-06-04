@@ -99,11 +99,10 @@ namespace Ecommerce.Application.Services
 
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if ((bool)!user.IsActive)
+            //if ((bool)!user.IsActive)
+            if(user == null)
             {
                 return Result<LoginResponseDto>.Forbidden("user is blocked");
-
-
             }
 
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
@@ -125,7 +124,7 @@ namespace Ecommerce.Application.Services
 
             }
             user.RefreshToken = refreshToken;
-            user.RefreshExpiredAt = DateTime.Now.AddMinutes(5);
+            user.RefreshExpiredAt = DateTime.Now.AddMinutes(50);
 
             await _userManager.UpdateAsync(user);
             var tokenDto = new TokenDto

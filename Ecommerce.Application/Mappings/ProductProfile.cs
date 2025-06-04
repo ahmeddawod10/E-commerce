@@ -44,5 +44,17 @@ namespace Ecommerce.Application.Mappings
             CreateMap<Order,CreateOrderDto>().ReverseMap();
         }
     }
+    public class ProductImageProfile : Profile
+    {
+        public ProductImageProfile()
+        {
+            CreateMap<CreateProductRequest, Product>()
+        .ForMember(dest => dest.ImageUrl, opt => opt.Ignore()).ReverseMap();  
 
+            CreateMap<UpdateProductRequest, Product>()
+        .ForMember(dest => dest.ImageUrl, opt => opt.Ignore()).ReverseMap();  
+
+            CreateMap<Product, ProductDto>().ReverseMap();  
+        }
+    }
 }

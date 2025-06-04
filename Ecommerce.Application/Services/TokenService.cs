@@ -57,7 +57,7 @@ namespace Ecommerce.Infrastructure.Services
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(duration ?? "2")).ToLocalTime(),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(duration ?? "20")).ToLocalTime(),
                 signingCredentials: credentials
             );
 
