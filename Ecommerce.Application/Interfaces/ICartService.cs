@@ -12,13 +12,11 @@ namespace Ecommerce.Application.Interfaces
 {
     public interface ICartService
     {
-        Task<Cart> GetCartAsync(string userId);
-        Task<Cart> AddToCartAsync(string userId, AddToCartRequest request);
-        Task<Cart> UpdateCartItemAsync(string userId, int productId, int quantity);
-        Task<Cart> RemoveFromCartAsync(string userId, int productId);
-        Task<bool> ClearCartAsync(string userId);
-        Task<bool> CartExistsAsync(string userId);
-        //Task<Cart> MergeCartsAsync(string sourceUserId, string targetUserId);
-        Task<bool> SetCartExpirationAsync(string userId, TimeSpan expiration);
+        Task<Result<CartDto>> GetCartAsync(string userId);
+        Task<Result<CartDto>> AddToCartAsync(string userId, AddToCartRequest request);
+        Task<Result<CartDto>> UpdateCartItemAsync(string userId, int productId, int quantity);
+        Task<Result<CartDto>> RemoveFromCartAsync(string userId, int productId);
+        Task<Result<bool>> ClearCartAsync(string userId);
+        Task<Result<bool>> SetCartExpirationAsync(string userId, TimeSpan expiration);
     }
 }

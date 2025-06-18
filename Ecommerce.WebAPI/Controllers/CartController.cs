@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using static Ecommerce.Domain.Entities.Cart;
+using Ecommerce.Application.DTOs;
 
 namespace Ecommerce.WebAPI.Controllers
 {
@@ -24,206 +25,61 @@ namespace Ecommerce.WebAPI.Controllers
             _cartService = cartService;
             _logger = logger;
         }
+  
 
-        private CartResponse MapToCartResponse(Cart cart)
+        [HttpGet]  
+        public async Task<IActionResult> GetCart()
         {
-            return new CartResponse
-            {
-                UserId = cart.UserId,
-                Items = cart.Items,
-                TotalAmount = (decimal)cart.TotalAmount,
-                TotalItems = (int)cart.TotalItems,
-                CreatedAt = cart.LastModified
-            };
+            string userId = GetUserId();
+             
+            var cartResult = await _cartService.GetCartAsync(userId);
+            return CreatedResponse(cartResult);  
         }
 
-        [HttpGet]
-        public async Task<ActionResult<CartResponse>> GetCart()
+        [HttpPost] 
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {
-            try
-            {
-                var userId = GetUserId();
-                var cart = await _cartService.GetCartAsync(userId);
-                return Ok(MapToCartResponse(cart));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving cart");
-                return StatusCode(500, new { message = "An error occurred while retrieving the cart" });
-            }
+            string userId = GetUserId();
+             
+            var addResult = await _cartService.AddToCartAsync(userId, request);
+            return CreatedResponse(addResult);
         }
 
-        [HttpPost()]
-        public async Task<ActionResult<CartResponse>> AddToCart([FromBody] AddToCartRequest request)
+        [HttpPut("{productId}")]  
+        public async Task<IActionResult> UpdateCartItem(int productId, [FromQuery] int quantity)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+            string userId = GetUserId();
 
-                var userId = GetUserId();
-                var cart = await _cartService.AddToCartAsync(userId, request);
-                return Ok(MapToCartResponse(cart));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding item to cart");
-                return StatusCode(500, new { message = "An error occurred while adding the item to cart" });
-            }
+            var updateResult = await _cartService.UpdateCartItemAsync(userId, productId, quantity);
+            return CreatedResponse(updateResult);
         }
 
-        [HttpPut("{productId}")]
-        public async Task<ActionResult<CartResponse>> UpdateCartItem(int productId, [FromBody] UpdateCartItemRequest request)
+        [HttpDelete("{productId}")]  
+        public async Task<IActionResult> RemoveFromCart(int productId)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+            string userId = GetUserId();
 
-                var userId = GetUserId();
-                var cart = await _cartService.UpdateCartItemAsync(userId, productId, request.Quantity);
-                return Ok(MapToCartResponse(cart));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating cart item");
-                return StatusCode(500, new { message = "An error occurred while updating the cart item" });
-            }
+            var removeResult = await _cartService.RemoveFromCartAsync(userId, productId);
+            return CreatedResponse(removeResult);
         }
 
-        [HttpDelete("{productId}")]
-        public async Task<ActionResult<CartResponse>> RemoveFromCart(int productId)
+        [HttpDelete("clear")]  
+        public async Task<IActionResult> ClearCart()
         {
-            try
-            {
-                var userId = GetUserId();
-                var cart = await _cartService.RemoveFromCartAsync(userId, productId);
-                return Ok(MapToCartResponse(cart));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error removing item from cart");
-                return StatusCode(500, new { message = "An error occurred while removing the item from cart" });
-            }
+            string userId = GetUserId();
+            
+            var clearResult = await _cartService.ClearCartAsync(userId);
+            return CreatedResponse(clearResult);
         }
 
-        [HttpDelete]
-        public async Task<ActionResult> ClearCart()
+        [HttpPut("expiration")]  
+        public async Task<IActionResult> SetCartExpiration([FromQuery] int days)
         {
-            try
-            {
-                var userId = GetUserId();
-                var success = await _cartService.ClearCartAsync(userId);
+            string userId = GetUserId();
 
-                if (success)
-                    return Ok(new { message = "Cart cleared successfully" });
-
-                return StatusCode(500, new { message = "Failed to clear cart" });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error clearing cart");
-                return StatusCode(500, new { message = "An error occurred while clearing the cart" });
-            }
-        }
-
-        [HttpGet("summary")]
-        public async Task<ActionResult> GetCartSummary()
-        {
-            try
-            {
-                var userId = GetUserId();
-                var cart = await _cartService.GetCartAsync(userId);
-
-                return Ok(new
-                {
-                    totalItems = cart.TotalItems,
-                    totalAmount = cart.TotalAmount,
-                    itemCount = cart.Items.Count,
-                    updatedAt = cart.LastModified
-                });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving cart summary");
-                return StatusCode(500, new { message = "An error occurred while retrieving cart summary" });
-            }
-        }
-
-        //[HttpPost("merge")]
-       /* public async Task<ActionResult<CartResponse>> MergeCart([FromBody] MergeCartRequest request)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(request.GuestSessionId))
-                    return BadRequest(new { message = "Guest session ID is required" });
-
-                var userId = GetUserId();
-                var guestUserId = $"guest:{request.GuestSessionId}";
-                var cart = await _cartService.MergeCartsAsync(guestUserId, userId);
-                return Ok(MapToCartResponse(cart));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error merging carts");
-                return StatusCode(500, new { message = "An error occurred while merging carts" });
-            }
-        }*/
-
-        public class MergeCartRequest
-        {
-            public string GuestSessionId { get; set; } = string.Empty;
+            var expiration = TimeSpan.FromDays(days);
+            var expirationResult = await _cartService.SetCartExpirationAsync(userId, expiration);
+            return CreatedResponse(expirationResult);
         }
     }
 }
-
-
-

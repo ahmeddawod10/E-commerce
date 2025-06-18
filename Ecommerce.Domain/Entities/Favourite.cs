@@ -17,6 +17,5 @@ namespace Ecommerce.Domain.Entities
     public class FavoriteItem
     {
         public string ProductId { get; set; } = string.Empty;
-        public string ProductName { get; set; } = string.Empty;
     }
 }

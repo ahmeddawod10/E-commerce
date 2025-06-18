@@ -129,7 +129,6 @@ namespace Ecommerce.Application.Services
 
         public async Task<Result<ProductDto>> UpdateProductAsync(UpdateProductRequest request)
         {
-            // Optional: FluentValidation for UpdateProductRequest
             // if (_updateProductRequestValidator != null)
             // {
             //     var validationResult = await _updateProductRequestValidator.ValidateAsync(request);
@@ -146,15 +145,14 @@ namespace Ecommerce.Application.Services
                 return Result<ProductDto>.NotFound($"Product with ID {request.Id} not found.");
             }
 
-            string? oldImageUrl = existingProduct.ImageUrl; // Store old URL BEFORE potential update
+            string? oldImageUrl = existingProduct.ImageUrl; 
 
-            // Handle image update if a new file is provided
             if (request.ImageFile != null)
             {
                 try
                 {
                     var newImageUrl = await _fileService.SaveFileAsync(request.ImageFile, _allowedImageExtensions, MaxImageSizeMb);
-                    existingProduct.ImageUrl = newImageUrl; // Update to the new image URL
+                    existingProduct.ImageUrl = newImageUrl; 
                 }
                 catch (ArgumentException argEx)
                 {
@@ -174,15 +172,12 @@ namespace Ecommerce.Application.Services
             }
 
             try
-            {
-                // Map other updated properties from request DTO to existing entity
-                // Make sure your AutoMapper profile handles mapping from UpdateProductRequest to Product
+            { 
                 _mapper.Map(request, existingProduct);
 
                 _unitOfWork.Products.Update(existingProduct);
                 await _unitOfWork.CompleteAsync();
 
-                // If DB update is successful and a new image was uploaded, delete the old one
                 if (request.ImageFile != null && !string.IsNullOrEmpty(oldImageUrl))
                 {
                     try
@@ -192,23 +187,21 @@ namespace Ecommerce.Application.Services
                     }
                     catch (Exception ex)
                     {
-                        // Log the exception but don't prevent the product update from succeeding
                         _logger.LogWarning(ex, $"Failed to delete old image file '{oldImageUrl}' for product ID {existingProduct.Id}.");
                     }
                 }
 
-                var mappedProductDto = _mapper.Map<ProductDto>(existingProduct); // Map the updated entity back to DTO
+                var mappedProductDto = _mapper.Map<ProductDto>(existingProduct); 
                 return Result<ProductDto>.Ok(mappedProductDto, "Product updated successfully.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to update product ID {request.Id} in the database.");
-                // If DB update fails after new image was saved, you might want to delete the newly uploaded image
                 if (request.ImageFile != null && !string.IsNullOrEmpty(existingProduct.ImageUrl) && existingProduct.ImageUrl != oldImageUrl)
                 {
                     try
                     {
-                        _fileService.DeleteFile(existingProduct.ImageUrl); // Attempt to delete the new, unsaved image
+                        _fileService.DeleteFile(existingProduct.ImageUrl); 
                         _logger.LogInformation($"Successfully rolled back newly uploaded image '{existingProduct.ImageUrl}' after DB update failure.");
                     }
                     catch (Exception deleteEx)
@@ -233,7 +226,6 @@ namespace Ecommerce.Application.Services
                 _unitOfWork.Products.Delete(product);
                 await _unitOfWork.CompleteAsync();
 
-                // Delete the associated image file AFTER successful product deletion from DB
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     try
@@ -243,7 +235,6 @@ namespace Ecommerce.Application.Services
                     }
                     catch (Exception ex)
                     {
-                        // Log the exception but don't prevent product deletion if image deletion fails
                         _logger.LogWarning(ex, $"Failed to delete image file '{product.ImageUrl}' for product ID {product.Id} after successful DB deletion.");
                     }
                 }
@@ -261,7 +252,7 @@ namespace Ecommerce.Application.Services
         {
             try
             {
-                var productsQuery = _unitOfWork.Products.AsQueryable(); // Get IQueryable
+                var productsQuery = _unitOfWork.Products.AsQueryable(); 
 
                 if (!string.IsNullOrWhiteSpace(pagination.SearchQuery))
                 {
@@ -270,11 +261,7 @@ namespace Ecommerce.Application.Services
                         p.Name.ToLower().Contains(search) ||
                         (p.Description != null && p.Description.ToLower().Contains(search)));
                 }
-
-                // Eager load category if ProductDto displays CategoryName
-                // Assuming Products repository has an include method or you can use .Include here
-                // Example: productsQuery = productsQuery.Include(p => p.Category);
-                // Or ensure GetAllWithCategoryAsync handles pagination if you intend to use it more broadly.
+.
 
                 var pagedProducts = await productsQuery
                     .Skip((pagination.PageNumber - 1) * pagination.PageSize)

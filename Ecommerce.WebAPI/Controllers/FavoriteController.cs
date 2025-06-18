@@ -31,10 +31,10 @@ namespace Ecommerce.WebAPI.Controllers
         }
 
         [HttpPost("{productId}")]
-        public async Task<ActionResult<Favorite>> Add(string productId, [FromQuery] string productName)
+        public async Task<ActionResult<Favorite>> Add(string productId)
         {
             var userId = GetUserId();
-            var favorites = await _favoriteService.AddFavoriteAsync(userId, productId, productName);
+            var favorites = await _favoriteService.AddFavoriteAsync(userId, productId);
             return Ok(favorites);
         }
 

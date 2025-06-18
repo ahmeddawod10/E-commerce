@@ -26,7 +26,7 @@ namespace Ecommerce.Application.Services
             return await _favoriteRepository.GetAsync(userId) ?? new Favorite { UserId = userId };
         }
 
-        public async Task<Favorite> AddFavoriteAsync(string userId, string productId, string productName)
+        public async Task<Favorite> AddFavoriteAsync(string userId, string productId)
         {
             var favorite = await GetFavoritesAsync(userId);
 
@@ -35,7 +35,6 @@ namespace Ecommerce.Application.Services
                 favorite.Items.Add(new FavoriteItem
                 {
                     ProductId = productId,
-                    ProductName = productName
                 });
 
                 favorite.UpdatedAt = DateTime.UtcNow;

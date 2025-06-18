@@ -57,4 +57,15 @@ namespace Ecommerce.Application.Mappings
             CreateMap<Product, ProductDto>().ReverseMap();  
         }
     }
+
+    public class CartProfile : Profile
+    {
+        public CartProfile()
+        {
+            CreateMap<CartDto, Cart>().ReverseMap();
+            CreateMap<CartItemDtos, Cart>().ReverseMap();
+            CreateMap<UpdateCartItemRequest, Cart>().ReverseMap();
+            CreateMap<CartResponse, Cart>().ReverseMap();
+        }
+    }
 }

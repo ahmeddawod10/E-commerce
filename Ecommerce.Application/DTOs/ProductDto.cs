@@ -58,4 +58,6 @@ namespace Ecommerce.Application.DTOs
 
         public IFormFile? ImageFile { get; set; } 
     }
+
+
 }

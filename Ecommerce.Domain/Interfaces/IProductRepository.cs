@@ -12,7 +12,7 @@ namespace Ecommerce.Domain.Interfaces
         Task<IEnumerable<Product>> GetProductByCategoryAsync(string category);
         Task<IEnumerable<Product>> GetAllWithCategoryAsync();
         Task<IEnumerable<Product>> GetPaginatedProductsAsync(int pageNumber, int pageSize);
-        Task<List<Product>> GetProductsByIdsAsync(List<string> ids);
+        Task<List<Product>> GetProductsByIdsAsync(List<int> ids);
 
 
 

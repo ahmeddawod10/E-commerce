@@ -56,15 +56,22 @@ namespace Ecommerce.Infrastructure.Repositories
                 TotalCount = totalCount
             };
         }
-
-        public async Task<List<Product>> GetProductsByIdsAsync(List<string> ids)
+        public async Task<List<Product>> GetProductsByIdsAsync(List<int> ids)
         {
-            var intIds = ids.Select(id => int.Parse(id)).ToList();
-
             return await _context.Products
-                .Where(p => intIds.Contains(p.Id))
+                .Where(p => ids.Contains(p.Id))
+                .Select(p => new Product
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    ImageUrl = p.ImageUrl
+                })
                 .ToListAsync();
         }
+
+
+
 
     }
 
